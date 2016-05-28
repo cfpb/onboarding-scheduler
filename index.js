@@ -11,7 +11,7 @@ var _ = require('lodash');
 
 moment.fn.isWeekend = function() {
   return this.isoWeekday() >= 6
-}
+};
 
 moment.fn.nextBusinessDay = function() {
   var tomorrow = this.add(1, 'd');
@@ -19,18 +19,20 @@ moment.fn.nextBusinessDay = function() {
     tomorrow.add(1, 'd');
   }
   return tomorrow;
-}
+};
 
 function processMessages(messages, startDate) {
 
   var day = moment(startDate).utcOffset("-04:00"),
-      businessDays = [day.set({hour: 10, minute: 0, second: 0}).format()],
-      scheduledMessages = [],
-      hoursApart = 4;
+    businessDays = [day.set({hour: 10, minute: 0, second: 0}).format()],
+    scheduledMessages = [],
+    hoursApart = 4;
 
-  messages.forEach(function saveDate(message) {
+  var greatestDay = _.maxBy(messages, 'day').day;
+  while (greatestDay--) {
     businessDays.push(day.nextBusinessDay().format());
-  });
+  }
+
 
   // Give every message a sequential date
   messages = messages.map(function (message) {
@@ -54,12 +56,10 @@ function processMessages(messages, startDate) {
   }
 
   // Flatten the object back into an array
-  for (var message in messages) {
+  for (message in messages) {
     scheduledMessages = scheduledMessages.concat(messages[message]);
   }
-
   return scheduledMessages;
-
 }
 
 module.exports = processMessages;
